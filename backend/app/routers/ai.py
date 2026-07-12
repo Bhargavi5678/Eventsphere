@@ -23,7 +23,7 @@ def generate_ai_event_plan(payload: schemas.AIPlanRequest):
         {"time": "12:00 PM", "activity": "Networking Luncheon & Vendor Showcase", "details": f"Buffet serving tailored cuisines. Venue: Exhibition Hall."},
         {"time": "02:00 PM", "activity": "Interactive Panel Discussion & Q&A session", "details": "Speakers and audience voting via the live dashboard."},
         {"time": "04:30 PM", "activity": "Closing Remarks & Certificate Distribution", "details": "Recognizing speakers, sponsors, and distributing certificates."},
-        {"time": "06:00 PM", "activity": "Evening Celebration & Dinner Party", "details": f"Theme-aligned lighting and DJ set. Budget allocated: ${round(budget * 0.15)}."}
+        {"time": "06:00 PM", "activity": "Evening Celebration & Dinner Party", "details": f"Theme-aligned lighting and DJ set. Budget allocated: ₹{round(budget * 0.15)}."}
     ]
     
     # 2. Generate Checklists
@@ -53,7 +53,7 @@ def generate_ai_event_plan(payload: schemas.AIPlanRequest):
         "suggested_itinerary": itinerary,
         "suggested_checklist": checklist,
         "recommended_vendors": vendors,
-        "ai_note": f"This plan was optimized for a ${budget:,} budget. It focuses on maximizing visitor engagement while retaining a {theme} atmosphere."
+        "ai_note": f"This plan was optimized for a ₹{budget:,} budget. It focuses on maximizing visitor engagement while retaining a {theme} atmosphere."
     }
 
 
@@ -102,9 +102,9 @@ def chat_assistant(payload: schemas.AIChatRequest, db: Session = Depends(databas
         rem_budget = total_budget_allocated - total_budget_spent
         reply = (
             f"Here is the budget summary for *{event.title}*:\n"
-            f"- **Allocated Budget**: ${total_budget_allocated:,.2f}\n"
-            f"- **Actual Expenses**: ${total_budget_spent:,.2f}\n"
-            f"- **Remaining Balance**: ${rem_budget:,.2f}\n"
+            f"- **Allocated Budget**: ₹{total_budget_allocated:,.2f}\n"
+            f"- **Actual Expenses**: ₹{total_budget_spent:,.2f}\n"
+            f"- **Remaining Balance**: ₹{rem_budget:,.2f}\n"
             f"Your spending is at **{round((total_budget_spent/total_budget_allocated)*100) if total_budget_allocated > 0 else 0}%** of allocation."
         )
     elif "ticket" in message or "sale" in message or "check" in message:
@@ -118,7 +118,7 @@ def chat_assistant(payload: schemas.AIChatRequest, db: Session = Depends(databas
         reply = (
             f"Sponsorship status for *{event.title}*:\n"
             f"- **Total Sponsors**: {len(sponsors)}\n"
-            f"- **Funds Raised**: ${total_sponsors_funds:,.2f}\n"
+            f"- **Funds Raised**: ₹{total_sponsors_funds:,.2f}\n"
             f"You can review sponsor logos and levels in the Sponsors panel."
         )
     elif "staff" in message or "shift" in message:
@@ -137,7 +137,7 @@ def chat_assistant(payload: schemas.AIChatRequest, db: Session = Depends(databas
         reply = (
             f"I'm here to assist with *{event.title}*. I detected your inquiry. "
             f"Currently, we have {total_guests} guests ({attending_guests} attending), "
-            f"and budget spent is ${total_budget_spent:,.2f} out of ${total_budget_allocated:,.2f}.\n\n"
+            f"and budget spent is ₹{total_budget_spent:,.2f} out of ₹{total_budget_allocated:,.2f}.\n\n"
             f"Please let me know if you need specific breakdowns of guests, budgets, tickets, or schedules!"
         )
         
