@@ -217,8 +217,8 @@ export const BudgetManager: React.FC<BudgetManagerProps> = ({ eventId, triggerNo
           <div className="flex justify-between items-center pb-2.5 border-b border-white/5">
             <h3 className="text-sm font-bold text-white tracking-wide">Expense Ledger Ledger</h3>
             <div className="text-[11px] font-bold space-x-4 text-gray-400">
-              <span>Allocated: <strong className="text-indigo-400">${totalAllocated.toLocaleString()}</strong></span>
-              <span>Actual spent: <strong className="text-purple-400">${totalActual.toLocaleString()}</strong></span>
+              <span>Allocated: <strong className="text-indigo-400">₹{totalAllocated.toLocaleString()}</strong></span>
+              <span>Actual spent: <strong className="text-purple-400">₹{totalActual.toLocaleString()}</strong></span>
             </div>
           </div>
 
@@ -249,8 +249,8 @@ export const BudgetManager: React.FC<BudgetManagerProps> = ({ eventId, triggerNo
                         </span>
                       </td>
                       <td className="p-3.5 font-bold text-white">{item.item_name}</td>
-                      <td className="p-3.5 text-indigo-400 font-black">${item.allocated_amount.toLocaleString()}</td>
-                      <td className="p-3.5 text-purple-400 font-black">${item.actual_amount.toLocaleString()}</td>
+                      <td className="p-3.5 text-indigo-400 font-black">₹{item.allocated_amount.toLocaleString()}</td>
+                      <td className="p-3.5 text-purple-400 font-black">₹{item.actual_amount.toLocaleString()}</td>
                       <td className="p-3.5 text-gray-400 max-w-[120px] truncate">{item.notes || '-'}</td>
                       <td className="p-3.5 text-center">
                         <button
@@ -297,7 +297,7 @@ export const BudgetManager: React.FC<BudgetManagerProps> = ({ eventId, triggerNo
               />
             </div>
             <div className="space-y-1">
-              <label className="text-[9px] font-bold text-gray-400 uppercase">Allocated ($)</label>
+              <label className="text-[9px] font-bold text-gray-400 uppercase">Allocated (₹)</label>
               <input 
                 type="number" 
                 value={newAllocated}
@@ -308,7 +308,7 @@ export const BudgetManager: React.FC<BudgetManagerProps> = ({ eventId, triggerNo
               />
             </div>
             <div className="space-y-1">
-              <label className="text-[9px] font-bold text-gray-400 uppercase">Actual spent ($)</label>
+              <label className="text-[9px] font-bold text-gray-400 uppercase">Actual spent (₹)</label>
               <input 
                 type="number" 
                 value={newActual}
@@ -489,7 +489,7 @@ export const BudgetManager: React.FC<BudgetManagerProps> = ({ eventId, triggerNo
                 <div className="w-full space-y-3.5 animate-in fade-in duration-300">
                   <div>
                     <span className="text-[9px] font-bold text-gray-500 uppercase tracking-wider block">Estimated Total Budget</span>
-                    <h3 className="text-2xl font-black text-emerald-400">${prediction.predicted_total.toLocaleString()}</h3>
+                    <h3 className="text-2xl font-black text-emerald-400">₹{prediction.predicted_total.toLocaleString()}</h3>
                     <span className="text-[8px] font-bold text-indigo-400 bg-indigo-500/10 px-1.5 py-0.5 rounded mt-1 inline-block uppercase">
                       Confidence: {Math.round(prediction.confidence_score * 100)}%
                     </span>
@@ -504,7 +504,7 @@ export const BudgetManager: React.FC<BudgetManagerProps> = ({ eventId, triggerNo
                         <div key={i} className="space-y-0.5">
                           <div className="flex justify-between font-bold text-gray-300">
                             <span>{cat}</span>
-                            <span className="text-gray-400">${cost.toLocaleString()} ({pct}%)</span>
+                            <span className="text-gray-400">₹{cost.toLocaleString()} ({pct}%)</span>
                           </div>
                           <div className="w-full h-1 bg-white/5 rounded-full overflow-hidden">
                             <div className="h-full rounded-full" style={{ width: `${pct}%`, backgroundColor: AI_COLORS[i % AI_COLORS.length] }}></div>

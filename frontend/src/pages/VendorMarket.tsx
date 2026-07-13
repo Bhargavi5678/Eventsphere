@@ -247,7 +247,7 @@ export const VendorMarket: React.FC<VendorMarketProps> = ({
                   <div className="flex items-center justify-between text-xs font-semibold text-gray-400 border-t border-white/5 pt-3">
                     <div className="flex flex-col">
                       <span className="text-[9px] text-gray-500 uppercase font-bold tracking-wider">Starting From</span>
-                      <span className="text-emerald-400 font-black text-sm mt-0.5">${vendor.starting_price.toLocaleString()}</span>
+                    <span className="text-emerald-400 font-black text-sm mt-0.5">₹{vendor.starting_price.toLocaleString()}</span>
                     </div>
                     <div className="flex flex-col items-end">
                       <span className="text-[9px] text-gray-500 uppercase font-bold tracking-wider">Contact Phone</span>
@@ -347,21 +347,7 @@ export const VendorMarket: React.FC<VendorMarketProps> = ({
             {/* Modal Form */}
             <form onSubmit={handleConfirmBooking} className="space-y-4">
               <div className="space-y-2">
-                <label className="text-xs font-bold text-gray-400 uppercase tracking-wider block">Target Booking Date</label>
-                <div className="relative">
-                  <input
-                    type="date"
-                    value={bookingDate}
-                    onChange={(e) => setBookingDate(e.target.value)}
-                    required
-                    className="w-full glass-input rounded-xl px-4 py-2.5 text-xs text-white"
-                  />
-                  <Calendar className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-gray-400 uppercase tracking-wider block">Agreed cost ($)</label>
+                <label className="text-xs font-bold text-gray-400 uppercase tracking-wider block">Agreed cost (₹)</label>
                 <div className="relative">
                   <input
                     type="number"
@@ -371,7 +357,7 @@ export const VendorMarket: React.FC<VendorMarketProps> = ({
                     min={1}
                     className="w-full glass-input rounded-xl px-4 py-2.5 text-xs text-white"
                   />
-                  <DollarSign className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" />
+                  <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none">₹</span>
                 </div>
                 <p className="text-[10px] text-gray-500 font-medium">Default base price is pre-populated. Adjust as required.</p>
               </div>

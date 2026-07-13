@@ -228,7 +228,7 @@ export const EventPlanner: React.FC<EventPlannerProps> = ({ eventId, triggerNoti
               </div>
 
               <div className="space-y-1">
-                <label className="text-[9px] font-bold text-gray-400 uppercase">Allocated Budget ($)</label>
+                <label className="text-[9px] font-bold text-gray-400 uppercase">Allocated Budget (₹)</label>
                 <input 
                   type="number" 
                   value={aiBudget}
@@ -447,7 +447,7 @@ export const EventPlanner: React.FC<EventPlannerProps> = ({ eventId, triggerNoti
                   <div key={idx} className="p-3 bg-white/5 rounded-xl border border-white/5 text-[11px] leading-normal space-y-1">
                     <div className="flex justify-between font-bold">
                       <span className="text-white">{vendor.category}: {vendor.recommendation}</span>
-                      <span className="text-emerald-400">${vendor.estimated_cost.toLocaleString()}</span>
+                      <span className="text-emerald-400">₹{vendor.estimated_cost.toLocaleString()}</span>
                     </div>
                     <p className="text-[10px] text-gray-400 italic">"{vendor.justification}"</p>
                   </div>

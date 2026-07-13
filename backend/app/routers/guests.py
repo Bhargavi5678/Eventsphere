@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Response
 from sqlalchemy.orm import Session
 from typing import List
-from app import crud, schemas, database
+from app import models, crud, schemas, database
 from app.services.mailer import send_notification, get_logs
 from app.services.pdf_badge import generate_svg_badge
 

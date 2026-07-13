@@ -46,6 +46,13 @@ export const SeatingMap: React.FC<SeatingMapProps> = ({ eventId, triggerNotifica
   const [tableShape, setTableShape] = useState('round');
   const [tableCapacity, setTableCapacity] = useState(8);
 
+  // Drag and drop states
+  const [draggingTable, setDraggingTable] = useState<{
+    id: number;
+    offsetX: number;
+    offsetY: number;
+  } | null>(null);
+
   const fetchData = async () => {
     try {
       const seatRes = await fetch(`${API_BASE_URL}/events/${eventId}/seating`);
@@ -75,18 +82,21 @@ export const SeatingMap: React.FC<SeatingMapProps> = ({ eventId, triggerNotifica
           table_name: tableName,
           table_shape: tableShape,
           capacity: tableCapacity,
-          x_coordinate: 150 + Math.random() * 100, // random offset near center
-          y_coordinate: 150 + Math.random() * 100,
+          x_coordinate: Math.round(150 + Math.random() * 100), // random offset near center
+          y_coordinate: Math.round(150 + Math.random() * 100),
           guest_ids: []
         })
       });
       if (res.ok) {
         setTableName('');
+        setTableShape('round');
+        setTableCapacity(8);
         triggerNotification(`Table "${tableName}" added to venue map.`);
         fetchData();
       }
     } catch (err) {
       console.error("Error adding table", err);
+      triggerNotification("Failed to add table. Check backend connection.");
     }
   };
 
@@ -106,20 +116,16 @@ export const SeatingMap: React.FC<SeatingMapProps> = ({ eventId, triggerNotifica
     }
   };
 
-  // Drag simulation / button position updates
-  const handleMoveTable = async (tableId: number, dx: number, dy: number) => {
+  // Update table position after drag
+  const handleUpdateTablePosition = async (tableId: number, newX: number, newY: number) => {
     const table = tables.find(t => t.id === tableId);
     if (!table) return;
-    const newX = Math.max(10, Math.min(650, table.x_coordinate + dx));
-    const newY = Math.max(10, Math.min(380, table.y_coordinate + dy));
-
     try {
       const res = await fetch(`${API_BASE_URL}/seating/${tableId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          x: Math.round(newX),
-          y: Math.round(newY),
+          x: newX, y: newY,
           guest_ids: table.guest_ids
         })
       });
@@ -133,6 +139,57 @@ export const SeatingMap: React.FC<SeatingMapProps> = ({ eventId, triggerNotifica
     } catch (err) {
       console.error("Error moving table", err);
     }
+  };
+
+  const handleMouseDown = (e: React.MouseEvent, tableId: number) => {
+    e.preventDefault();
+    const tableElement = e.currentTarget as HTMLDivElement;
+    const rect = tableElement.getBoundingClientRect();
+    const parentRect = tableElement.parentElement!.getBoundingClientRect();
+
+    setDraggingTable({
+      id: tableId,
+      offsetX: e.clientX - rect.left,
+      offsetY: e.clientY - rect.top,
+    });
+
+    const handleMouseMove = (moveEvent: MouseEvent) => {
+      setTables(prevTables =>
+        prevTables.map(t => {
+          if (t.id === tableId) {
+            const newX = moveEvent.clientX - parentRect.left - (e.clientX - rect.left);
+            const newY = moveEvent.clientY - parentRect.top - (e.clientY - rect.top);
+            
+            // Boundary checks for visual feedback
+            const boundedX = Math.max(38, Math.min(parentRect.width - 38, newX));
+            const boundedY = Math.max(38, Math.min(parentRect.height - 38, newY));
+
+            return { ...t, x_coordinate: boundedX, y_coordinate: boundedY };
+          }
+          return t;
+        })
+      );
+    };
+
+    const handleMouseUp = (upEvent: MouseEvent) => {
+      const newX = upEvent.clientX - parentRect.left - (e.clientX - rect.left);
+      const newY = upEvent.clientY - parentRect.top - (e.clientY - rect.top);
+      
+      const boundedX = Math.max(38, Math.min(parentRect.width - 38, newX));
+      const boundedY = Math.max(38, Math.min(parentRect.height - 38, newY));
+
+      const finalX = Math.round(boundedX);
+      const finalY = Math.round(boundedY);
+
+      handleUpdateTablePosition(tableId, finalX, finalY);
+      
+      setDraggingTable(null);
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
   };
 
   // Seat a guest at active table
@@ -252,10 +309,11 @@ export const SeatingMap: React.FC<SeatingMapProps> = ({ eventId, triggerNotifica
               return (
                 <div
                   key={table.id}
-                  onClick={() => setActiveTable(table)}
+                  onMouseDown={(e) => handleMouseDown(e, table.id)}
+                  onClick={() => !draggingTable && setActiveTable(table)}
                   style={{ left: `${table.x_coordinate}px`, top: `${table.y_coordinate}px` }}
-                  className={`absolute transform -translate-x-1/2 -translate-y-1/2 cursor-pointer flex flex-col items-center justify-center transition-all duration-200 z-10 ${
-                    isSelected ? 'scale-115' : 'hover:scale-105'
+                  className={`absolute transform -translate-x-1/2 -translate-y-1/2 cursor-grab flex flex-col items-center justify-center z-10 ${
+                    isSelected ? 'scale-115' : 'hover:scale-105' 
                   }`}
                 >
                   {/* Table Shape Graphic */}
@@ -362,22 +420,11 @@ export const SeatingMap: React.FC<SeatingMapProps> = ({ eventId, triggerNotifica
               </div>
 
               {/* Drag Position Control Simulation */}
-              <div className="space-y-2">
+              <div className="space-y-2 opacity-50">
                 <span className="text-[9px] font-bold text-gray-400 uppercase flex items-center gap-1.5">
                   <Move className="w-3.5 h-3.5 text-indigo-400" />
-                  Reposition Table coordinates
+                  Reposition by dragging on map
                 </span>
-                <div className="grid grid-cols-3 gap-2 text-center text-xs font-black">
-                  <div></div>
-                  <button onClick={() => handleMoveTable(activeTable.id, 0, -25)} className="bg-slate-800 hover:bg-slate-700 text-gray-300 py-1 rounded border border-white/5 cursor-pointer">▲</button>
-                  <div></div>
-                  <button onClick={() => handleMoveTable(activeTable.id, -25, 0)} className="bg-slate-800 hover:bg-slate-700 text-gray-300 py-1 rounded border border-white/5 cursor-pointer">◀</button>
-                  <div className="bg-[#0b0f19] text-indigo-400 py-1 rounded flex items-center justify-center font-bold text-[9px]">Pos</div>
-                  <button onClick={() => handleMoveTable(activeTable.id, 25, 0)} className="bg-slate-800 hover:bg-slate-700 text-gray-300 py-1 rounded border border-white/5 cursor-pointer">▶</button>
-                  <div></div>
-                  <button onClick={() => handleMoveTable(activeTable.id, 0, 25)} className="bg-slate-800 hover:bg-slate-700 text-gray-300 py-1 rounded border border-white/5 cursor-pointer">▼</button>
-                  <div></div>
-                </div>
               </div>
 
               {/* Seating Assignment */}

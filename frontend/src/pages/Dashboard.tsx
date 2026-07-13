@@ -458,7 +458,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
         <div className="glass-panel p-6 rounded-2xl flex items-center justify-between border border-white/5">
           <div>
             <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Global Revenue</p>
-            <h3 className="text-3xl font-black text-white mt-1.5">${stats.totalRevenue.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</h3>
+            <h3 className="text-3xl font-black text-white mt-1.5">₹{stats.totalRevenue.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</h3>
             <span className="text-[9px] text-emerald-400 font-bold tracking-wider">Simulated tickets</span>
           </div>
           <div className="w-11 h-11 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-400 border border-emerald-500/15">
@@ -653,7 +653,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
         <div className="glass-panel p-6 rounded-2xl flex items-center justify-between border border-white/5">
           <div>
             <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Revenue Generated</p>
-            <h3 className="text-3xl font-black text-white mt-1.5">${stats.totalRevenue.toLocaleString()}</h3>
+            <h3 className="text-3xl font-black text-white mt-1.5">₹{stats.totalRevenue.toLocaleString()}</h3>
             <span className="text-[9px] text-purple-400 font-bold tracking-wider">Ticket sales log</span>
           </div>
           <div className="w-11 h-11 rounded-xl bg-purple-500/10 flex items-center justify-center text-purple-400 border border-purple-500/15">
@@ -664,8 +664,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
         <div className="glass-panel p-6 rounded-2xl flex items-center justify-between border border-white/5">
           <div>
             <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Budget Remaining</p>
-            <h3 className="text-3xl font-black text-white mt-1.5">${budgetRemaining.toLocaleString()}</h3>
-            <span className="text-[9px] text-emerald-400 font-bold tracking-wider">Out of ${budgetTotal.toLocaleString()}</span>
+            <h3 className="text-3xl font-black text-white mt-1.5">₹{budgetRemaining.toLocaleString()}</h3>
+            <span className="text-[9px] text-emerald-400 font-bold tracking-wider">Out of ₹{budgetTotal.toLocaleString()}</span>
           </div>
           <div className="w-11 h-11 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-400 border border-emerald-500/15">
             <TrendingUp className="w-5.5 h-5.5" />
@@ -1082,7 +1082,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                   </div>
                   <div>
                     <span className="text-[8px] font-extrabold text-gray-500 uppercase block">Price Paid</span>
-                    <span className="text-emerald-400 text-xs font-black">${guestTicket.price}</span>
+                    <span className="text-emerald-400 text-xs font-black">₹{guestTicket.price}</span>
                   </div>
                 </div>
 

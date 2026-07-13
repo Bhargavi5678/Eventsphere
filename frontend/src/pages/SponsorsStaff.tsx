@@ -182,7 +182,7 @@ export const SponsorsStaff: React.FC<SponsorsStaffProps> = ({ eventId, triggerNo
                 Sponsorship Directory
               </h3>
               <span className="text-[11px] font-bold text-emerald-400">
-                Total Funds: ${totalSponsorFunds.toLocaleString()}
+                Total Funds: ₹{totalSponsorFunds.toLocaleString()}
               </span>
             </div>
 
@@ -205,7 +205,7 @@ export const SponsorsStaff: React.FC<SponsorsStaffProps> = ({ eventId, triggerNo
                             sp.level === 'Silver' ? 'bg-slate-400/10 border border-slate-400/20 text-slate-300' :
                             'bg-amber-700/10 border border-amber-700/20 text-amber-600'
                           }`}>{sp.level}</span>
-                          <span>${sp.amount_funded.toLocaleString()}</span>
+                          <span>₹{sp.amount_funded.toLocaleString()}</span>
                         </div>
                       </div>
                     </div>
@@ -241,7 +241,7 @@ export const SponsorsStaff: React.FC<SponsorsStaffProps> = ({ eventId, triggerNo
                 />
               </div>
               <div className="space-y-1">
-                <label className="text-[9px] text-gray-400 uppercase">Funding ($)</label>
+                <label className="text-[9px] text-gray-400 uppercase">Funding (₹)</label>
                 <input 
                   type="number" 
                   value={newSponsorAmount}

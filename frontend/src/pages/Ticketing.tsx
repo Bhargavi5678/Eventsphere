@@ -110,10 +110,16 @@ export const Ticketing: React.FC<TicketingProps> = ({ eventId, triggerNotificati
     setBadgeLoading(true);
     try {
       const res = await fetch(`${API_BASE_URL}/guests/${selectedBadgeGuestId}/badge`);
-      const svgText = await res.text();
-      setBadgeSvg(svgText);
+      if (res.ok) {
+        const svgText = await res.text();
+        setBadgeSvg(svgText);
+      } else {
+        setBadgeSvg(null);
+        console.error("Failed to fetch badge SVG: ", res.statusText);
+      }
     } catch (err) {
-      console.error(err);
+      console.error("Error fetching badge SVG:", err);
+      setBadgeSvg(null);
     } finally {
       setBadgeLoading(false);
     }
@@ -121,7 +127,22 @@ export const Ticketing: React.FC<TicketingProps> = ({ eventId, triggerNotificati
 
   useEffect(() => {
     fetchBadgeSvg();
-  }, [selectedBadgeGuestId, eventId]);
+  }, [selectedBadgeGuestId, eventId, tickets]);
+
+  // Synchronize selectedBadgeGuestId when checked-in list changes
+  useEffect(() => {
+    const checkedInGuestsList = guests.filter(g => 
+      tickets.some(t => t.guest_id === g.id && t.checked_in)
+    );
+    if (checkedInGuestsList.length > 0) {
+      const checkedInIds = checkedInGuestsList.map(g => g.id.toString());
+      if (!selectedBadgeGuestId || !checkedInIds.includes(selectedBadgeGuestId)) {
+        setSelectedBadgeGuestId(checkedInIds[0]);
+      }
+    } else {
+      setSelectedBadgeGuestId('');
+    }
+  }, [guests, tickets]);
 
   const handleIssueTicket = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -196,14 +217,53 @@ export const Ticketing: React.FC<TicketingProps> = ({ eventId, triggerNotificati
 
   const handlePrintBadge = () => {
     if (!badgeSvg) return;
-    const printWindow = window.open('', '_blank');
-    if (printWindow) {
-      printWindow.document.write(`<html><body style="margin:0; display:flex; justify-content:center; align-items:center; height:100vh; background:#000;">${badgeSvg}</body></html>`);
-      printWindow.document.close();
-      printWindow.focus();
+    
+    // Create a hidden iframe
+    const iframe = document.createElement('iframe');
+    iframe.style.position = 'fixed';
+    iframe.style.right = '0';
+    iframe.style.bottom = '0';
+    iframe.style.width = '0';
+    iframe.style.height = '0';
+    iframe.style.border = '0';
+    document.body.appendChild(iframe);
+    
+    const doc = iframe.contentWindow?.document || iframe.contentDocument;
+    if (doc) {
+      doc.write(`
+        <html>
+          <head>
+            <style>
+              @page { size: auto; margin: 0mm; }
+              body { 
+                margin: 0; 
+                display: flex; 
+                justify-content: center; 
+                align-items: center; 
+                height: 100vh; 
+                background: #fff; 
+              }
+              svg {
+                width: 100%;
+                max-width: 350px;
+                height: auto;
+              }
+            </style>
+          </head>
+          <body>
+            ${badgeSvg}
+          </body>
+        </html>
+      `);
+      doc.close();
+      
+      // Wait for content loading, focus and print
       setTimeout(() => {
-        printWindow.print();
-        printWindow.close();
+        if (iframe.contentWindow) {
+          iframe.contentWindow.focus();
+          iframe.contentWindow.print();
+        }
+        document.body.removeChild(iframe);
       }, 500);
     }
   };
@@ -248,7 +308,7 @@ export const Ticketing: React.FC<TicketingProps> = ({ eventId, triggerNotificati
                     </div>
 
                     <div className="text-right shrink-0">
-                      <div className="text-emerald-400 font-black text-xs">${t.price}</div>
+                      <div className="text-emerald-400 font-black text-xs">₹{t.price}</div>
                       <span className={`text-[8px] font-bold uppercase mt-1 inline-block ${
                         t.checked_in ? 'text-emerald-400 bg-emerald-500/10 px-1 py-0.5 rounded border border-emerald-500/25' : 'text-gray-500 bg-white/5 px-1 py-0.5 rounded border border-white/5'
                       }`}>
@@ -282,9 +342,9 @@ export const Ticketing: React.FC<TicketingProps> = ({ eventId, triggerNotificati
                 onChange={e => setTicketTier(e.target.value)}
                 className="w-full glass-input rounded-xl px-2.5 py-1.5 bg-slate-900 text-xs font-bold text-indigo-400"
               >
-                <option value="General">General ($199)</option>
-                <option value="VIP">VIP ($499)</option>
-                <option value="Early Bird">Early Bird ($149)</option>
+                <option value="General">General (₹199)</option>
+                <option value="VIP">VIP (₹499)</option>
+                <option value="Early Bird">Early Bird (₹149)</option>
               </select>
             </div>
             <div>
@@ -383,9 +443,12 @@ export const Ticketing: React.FC<TicketingProps> = ({ eventId, triggerNotificati
                 {checkedInGuests.length === 0 ? (
                   <option value="">No checked-in guests found</option>
                 ) : (
-                  checkedInGuests.map(g => (
-                    <option key={g.id} value={g.id}>{g.name} ({g.role})</option>
-                  ))
+                  <>
+                    <option value="">Select a checked-in guest...</option>
+                    {checkedInGuests.map(g => (
+                      <option key={g.id} value={g.id}>{g.name} ({g.role})</option>
+                    ))}
+                  </>
                 )}
               </select>
             </div>
