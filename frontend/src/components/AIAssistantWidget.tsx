@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../config';
 import React, { useState, useRef, useEffect } from 'react';
 import { Bot, X, Send, Sparkles, CornerDownLeft } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
@@ -35,7 +36,7 @@ export const AIAssistantWidget: React.FC<AIAssistantWidgetProps> = ({ eventId })
     setLoading(true);
 
     try {
-      const res = await fetch(`http://127.0.0.1:8000/ai/chat`, {
+      const res = await fetch(`${API_BASE_URL}/ai/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: text, event_id: eventId })

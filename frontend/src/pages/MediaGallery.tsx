@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../config';
 import React, { useState, useEffect } from 'react';
 import { 
   Image as ImageIcon, 
@@ -62,7 +63,7 @@ export const MediaGallery: React.FC<MediaGalleryProps> = ({ eventId, triggerNoti
 
   const fetchFeedback = async () => {
     try {
-      const res = await fetch(`http://127.0.0.1:8000/events/${eventId}/feedback`);
+      const res = await fetch(`${API_BASE_URL}/events/${eventId}/feedback`);
       const data = await res.json();
       setFeedbacks(data.reverse()); // Show newest feedback first
     } catch (err) {
@@ -98,7 +99,7 @@ export const MediaGallery: React.FC<MediaGalleryProps> = ({ eventId, triggerNoti
     if (!newComment.trim()) return;
 
     try {
-      const res = await fetch(`http://127.0.0.1:8000/events/${eventId}/feedback`, {
+      const res = await fetch(`${API_BASE_URL}/events/${eventId}/feedback`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

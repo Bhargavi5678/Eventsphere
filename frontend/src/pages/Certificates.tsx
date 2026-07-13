@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../config';
 import React, { useState, useEffect } from 'react';
 import { 
   Award, 
@@ -32,7 +33,7 @@ export const Certificates: React.FC<CertificatesProps> = ({ eventId, triggerNoti
 
   const fetchGuests = async () => {
     try {
-      const res = await fetch(`http://127.0.0.1:8000/events/${eventId}/guests`);
+      const res = await fetch(`${API_BASE_URL}/events/${eventId}/guests`);
       const data = await res.json();
       // Filter attending/present guests for certificates
       const attending = data.filter((g: any) => g.status.toLowerCase() === 'attending');
@@ -53,7 +54,7 @@ export const Certificates: React.FC<CertificatesProps> = ({ eventId, triggerNoti
     if (!selectedGuestName) return;
     setLoading(true);
     try {
-      const res = await fetch(`http://127.0.0.1:8000/events/${eventId}/certificates/generate?guest_name=${encodeURIComponent(selectedGuestName)}`);
+      const res = await fetch(`${API_BASE_URL}/events/${eventId}/certificates/generate?guest_name=${encodeURIComponent(selectedGuestName)}`);
       const svgText = await res.text();
       setSvgContent(svgText);
     } catch (err) {

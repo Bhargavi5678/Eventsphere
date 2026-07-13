@@ -1,3 +1,4 @@
+import { API_BASE_URL } from './config';
 import React, { useState, useEffect } from 'react';
 import { Sidebar } from './components/Sidebar';
 import { Navbar } from './components/Navbar';
@@ -67,7 +68,7 @@ export const App: React.FC = () => {
     const fetchMe = async () => {
       if (!token) return;
       try {
-        const res = await fetch('http://127.0.0.1:8000/auth/me', {
+        const res = await fetch(`${API_BASE_URL}/auth/me`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -89,7 +90,7 @@ export const App: React.FC = () => {
 
   const fetchActiveEvent = async () => {
     try {
-      const res = await fetch(`http://127.0.0.1:8000/events/1`);
+      const res = await fetch(`${API_BASE_URL}/events/1`);
       if (res.ok) {
         const data = await res.json();
         setActiveEvent(data);
@@ -138,7 +139,7 @@ export const App: React.FC = () => {
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await fetch('http://127.0.0.1:8000/auth/login', {
+      const res = await fetch(`${API_BASE_URL}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: emailInput, password: passwordInput })
@@ -175,7 +176,7 @@ export const App: React.FC = () => {
         name = 'Google Host';
       }
 
-      const res = await fetch('http://127.0.0.1:8000/auth/google', {
+      const res = await fetch(`${API_BASE_URL}/auth/google`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, name })
@@ -198,7 +199,7 @@ export const App: React.FC = () => {
   const handleRegisterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await fetch('http://127.0.0.1:8000/auth/register', {
+      const res = await fetch(`${API_BASE_URL}/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -224,7 +225,7 @@ export const App: React.FC = () => {
   const handleVerifyEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await fetch('http://127.0.0.1:8000/auth/verify-email', {
+      const res = await fetch(`${API_BASE_URL}/auth/verify-email`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: emailInput, token: verifyTokenInput })
@@ -246,7 +247,7 @@ export const App: React.FC = () => {
   const handleForgotPasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await fetch('http://127.0.0.1:8000/auth/forgot-password', {
+      const res = await fetch(`${API_BASE_URL}/auth/forgot-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: emailInput })
@@ -271,7 +272,7 @@ export const App: React.FC = () => {
   const handlePasswordResetConfirm = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await fetch('http://127.0.0.1:8000/auth/verify-reset', {
+      const res = await fetch(`${API_BASE_URL}/auth/verify-reset`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

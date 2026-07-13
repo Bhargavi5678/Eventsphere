@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../config';
 import React, { useState, useEffect } from 'react';
 import { 
   Search, 
@@ -71,11 +72,11 @@ export const VendorMarket: React.FC<VendorMarketProps> = ({
 
   const fetchVendorData = async () => {
     try {
-      const vendorRes = await fetch(`http://127.0.0.1:8000/vendors`);
+      const vendorRes = await fetch(`${API_BASE_URL}/vendors`);
       const vendorData = await vendorRes.json();
       setVendors(vendorData);
 
-      const bookingRes = await fetch(`http://127.0.0.1:8000/events/${eventId}/bookings`);
+      const bookingRes = await fetch(`${API_BASE_URL}/events/${eventId}/bookings`);
       if (bookingRes.ok) {
         const bookingData = await bookingRes.json();
         setBookings(bookingData);
@@ -106,7 +107,7 @@ export const VendorMarket: React.FC<VendorMarketProps> = ({
     if (!bookingVendor) return;
 
     try {
-      const res = await fetch(`http://127.0.0.1:8000/events/${eventId}/bookings`, {
+      const res = await fetch(`${API_BASE_URL}/events/${eventId}/bookings`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

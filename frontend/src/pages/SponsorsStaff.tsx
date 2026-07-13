@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../config';
 import React, { useState, useEffect } from 'react';
 import { 
   Plus, 
@@ -56,11 +57,11 @@ export const SponsorsStaff: React.FC<SponsorsStaffProps> = ({ eventId, triggerNo
 
   const fetchData = async () => {
     try {
-      const spRes = await fetch(`http://127.0.0.1:8000/events/${eventId}/sponsors`);
+      const spRes = await fetch(`${API_BASE_URL}/events/${eventId}/sponsors`);
       const spData = await spRes.json();
       setSponsors(spData);
 
-      const stRes = await fetch(`http://127.0.0.1:8000/events/${eventId}/staff`);
+      const stRes = await fetch(`${API_BASE_URL}/events/${eventId}/staff`);
       const stData = await stRes.json();
       setStaff(stData);
     } catch (err) {
@@ -81,7 +82,7 @@ export const SponsorsStaff: React.FC<SponsorsStaffProps> = ({ eventId, triggerNo
       : "https://images.unsplash.com/photo-1554774853-aae0a22c8aa4?w=100&auto=format&fit=crop&q=60";
 
     try {
-      const res = await fetch(`http://127.0.0.1:8000/events/${eventId}/sponsors`, {
+      const res = await fetch(`${API_BASE_URL}/events/${eventId}/sponsors`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -107,7 +108,7 @@ export const SponsorsStaff: React.FC<SponsorsStaffProps> = ({ eventId, triggerNo
 
   const handleDeleteSponsor = async (spId: number) => {
     try {
-      const res = await fetch(`http://127.0.0.1:8000/sponsors/${spId}`, {
+      const res = await fetch(`${API_BASE_URL}/sponsors/${spId}`, {
         method: 'DELETE'
       });
       if (res.ok) {
@@ -124,7 +125,7 @@ export const SponsorsStaff: React.FC<SponsorsStaffProps> = ({ eventId, triggerNo
     if (!newStaffName || !newStaffContact) return;
 
     try {
-      const res = await fetch(`http://127.0.0.1:8000/events/${eventId}/staff`, {
+      const res = await fetch(`${API_BASE_URL}/events/${eventId}/staff`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -148,7 +149,7 @@ export const SponsorsStaff: React.FC<SponsorsStaffProps> = ({ eventId, triggerNo
 
   const handleDeleteStaff = async (stId: number) => {
     try {
-      const res = await fetch(`http://127.0.0.1:8000/staff/${stId}`, {
+      const res = await fetch(`${API_BASE_URL}/staff/${stId}`, {
         method: 'DELETE'
       });
       if (res.ok) {

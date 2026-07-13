@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../config';
 import React, { useState, useEffect } from 'react';
 import { 
   CreditCard, 
@@ -59,10 +60,10 @@ export const Ticketing: React.FC<TicketingProps> = ({ eventId, triggerNotificati
 
   const fetchTicketsAndGuests = async () => {
     try {
-      const ticketRes = await fetch(`http://127.0.0.1:8000/events/${eventId}/tickets`);
+      const ticketRes = await fetch(`${API_BASE_URL}/events/${eventId}/tickets`);
       const ticketData = await ticketRes.json();
       
-      const guestRes = await fetch(`http://127.0.0.1:8000/events/${eventId}/guests`);
+      const guestRes = await fetch(`${API_BASE_URL}/events/${eventId}/guests`);
       const guestData = await guestRes.json();
       setGuests(guestData);
 
@@ -108,7 +109,7 @@ export const Ticketing: React.FC<TicketingProps> = ({ eventId, triggerNotificati
     }
     setBadgeLoading(true);
     try {
-      const res = await fetch(`http://127.0.0.1:8000/guests/${selectedBadgeGuestId}/badge`);
+      const res = await fetch(`${API_BASE_URL}/guests/${selectedBadgeGuestId}/badge`);
       const svgText = await res.text();
       setBadgeSvg(svgText);
     } catch (err) {
@@ -127,7 +128,7 @@ export const Ticketing: React.FC<TicketingProps> = ({ eventId, triggerNotificati
     if (!selectedGuestId) return;
 
     try {
-      const res = await fetch(`http://127.0.0.1:8000/events/${eventId}/tickets`, {
+      const res = await fetch(`${API_BASE_URL}/events/${eventId}/tickets`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -154,7 +155,7 @@ export const Ticketing: React.FC<TicketingProps> = ({ eventId, triggerNotificati
     // Simulate scanning delay
     setTimeout(async () => {
       try {
-        const res = await fetch(`http://127.0.0.1:8000/tickets/check-in`, {
+        const res = await fetch(`${API_BASE_URL}/tickets/check-in`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ ticket_code: scanCode.trim() })

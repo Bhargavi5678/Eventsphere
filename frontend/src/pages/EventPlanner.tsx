@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../config';
 import React, { useState, useEffect } from 'react';
 import { 
   BrainCircuit, 
@@ -49,7 +50,7 @@ export const EventPlanner: React.FC<EventPlannerProps> = ({ eventId, triggerNoti
 
   const fetchSchedule = async () => {
     try {
-      const res = await fetch(`http://127.0.0.1:8000/events/${eventId}/schedule`);
+      const res = await fetch(`${API_BASE_URL}/events/${eventId}/schedule`);
       const data = await res.json();
       setSchedule(data);
     } catch (err) {
@@ -76,7 +77,7 @@ export const EventPlanner: React.FC<EventPlannerProps> = ({ eventId, triggerNoti
     }
 
     try {
-      const res = await fetch(`http://127.0.0.1:8000/events/${eventId}/schedule`, {
+      const res = await fetch(`${API_BASE_URL}/events/${eventId}/schedule`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -102,7 +103,7 @@ export const EventPlanner: React.FC<EventPlannerProps> = ({ eventId, triggerNoti
 
   const handleDeleteSession = async (sessId: number) => {
     try {
-      const res = await fetch(`http://127.0.0.1:8000/schedule/${sessId}`, {
+      const res = await fetch(`${API_BASE_URL}/schedule/${sessId}`, {
         method: 'DELETE'
       });
       if (res.ok) {
@@ -117,7 +118,7 @@ export const EventPlanner: React.FC<EventPlannerProps> = ({ eventId, triggerNoti
   const handleRunAIPlanner = async () => {
     setPlanning(true);
     try {
-      const res = await fetch(`http://127.0.0.1:8000/ai/plan`, {
+      const res = await fetch(`${API_BASE_URL}/ai/plan`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -153,7 +154,7 @@ export const EventPlanner: React.FC<EventPlannerProps> = ({ eventId, triggerNoti
       const endHr = hr + 1;
       const formattedEndTime = (endHr < 10 ? '0' : '') + endHr + formattedTime.substring(2);
 
-      const res = await fetch(`http://127.0.0.1:8000/events/${eventId}/schedule`, {
+      const res = await fetch(`${API_BASE_URL}/events/${eventId}/schedule`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -174,7 +175,7 @@ export const EventPlanner: React.FC<EventPlannerProps> = ({ eventId, triggerNoti
   };
 
   const handleDownloadICS = () => {
-    window.open(`http://127.0.0.1:8000/events/${eventId}/ics`);
+    window.open(`${API_BASE_URL}/events/${eventId}/ics`);
     triggerNotification("Downloading Calendar sync .ics file.");
   };
 

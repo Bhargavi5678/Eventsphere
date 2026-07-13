@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../config';
 import React, { useState, useEffect } from 'react';
 import { 
   Plus, 
@@ -74,15 +75,15 @@ export const BudgetManager: React.FC<BudgetManagerProps> = ({ eventId, triggerNo
 
   const fetchBudgetData = async () => {
     try {
-      const budgetRes = await fetch(`http://127.0.0.1:8000/events/${eventId}/budget`);
+      const budgetRes = await fetch(`${API_BASE_URL}/events/${eventId}/budget`);
       const budgetData = await budgetRes.json();
       setBudgetItems(budgetData);
 
-      const vendorRes = await fetch(`http://127.0.0.1:8000/vendors`);
+      const vendorRes = await fetch(`${API_BASE_URL}/vendors`);
       const vendorData = await vendorRes.json();
       setVendors(vendorData);
 
-      const bookingRes = await fetch(`http://127.0.0.1:8000/events/${eventId}/bookings`);
+      const bookingRes = await fetch(`${API_BASE_URL}/events/${eventId}/bookings`);
       const bookingData = await bookingRes.json();
       setBookings(bookingData);
     } catch (err) {
@@ -99,7 +100,7 @@ export const BudgetManager: React.FC<BudgetManagerProps> = ({ eventId, triggerNo
     if (!newItemName || !newAllocated) return;
 
     try {
-      const res = await fetch(`http://127.0.0.1:8000/events/${eventId}/budget`, {
+      const res = await fetch(`${API_BASE_URL}/events/${eventId}/budget`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -125,7 +126,7 @@ export const BudgetManager: React.FC<BudgetManagerProps> = ({ eventId, triggerNo
 
   const handleDeleteBudgetItem = async (itemId: number) => {
     try {
-      const res = await fetch(`http://127.0.0.1:8000/budget/${itemId}`, {
+      const res = await fetch(`${API_BASE_URL}/budget/${itemId}`, {
         method: 'DELETE'
       });
       if (res.ok) {
@@ -139,7 +140,7 @@ export const BudgetManager: React.FC<BudgetManagerProps> = ({ eventId, triggerNo
 
   const handleBookVendor = async (vendorId: number, price: number) => {
     try {
-      const res = await fetch(`http://127.0.0.1:8000/events/${eventId}/bookings`, {
+      const res = await fetch(`${API_BASE_URL}/events/${eventId}/bookings`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -160,7 +161,7 @@ export const BudgetManager: React.FC<BudgetManagerProps> = ({ eventId, triggerNo
   const handleGetAIPrediction = async () => {
     setPredicting(true);
     try {
-      const res = await fetch(`http://127.0.0.1:8000/ai/predict-budget`, {
+      const res = await fetch(`${API_BASE_URL}/ai/predict-budget`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

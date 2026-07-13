@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../config';
 import React, { useState, useEffect } from 'react';
 import { 
   ArrowRight, 
@@ -51,7 +52,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const res = await fetch('http://127.0.0.1:8000/events/');
+        const res = await fetch(`${API_BASE_URL}/events/`);
         if (res.ok) {
           const data = await res.json();
           setEvents(data);

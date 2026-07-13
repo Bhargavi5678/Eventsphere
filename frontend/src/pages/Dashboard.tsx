@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../config';
 import React, { useState, useEffect } from 'react';
 import { 
   Users, 
@@ -89,18 +90,18 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const loadDashboard = async () => {
     try {
       // 1. Fetch Events
-      const eventRes = await fetch(`http://127.0.0.1:8000/events/`);
+      const eventRes = await fetch(`${API_BASE_URL}/events/`);
       if (eventRes.ok) {
         const eventData = await eventRes.json();
         setEvents(eventData);
       }
 
       // 2. Fetch Guests for Event 1
-      const guestRes = await fetch(`http://127.0.0.1:8000/events/${eventId}/guests`);
+      const guestRes = await fetch(`${API_BASE_URL}/events/${eventId}/guests`);
       const guestData = await guestRes.json();
       
       // 3. Fetch Tickets
-      const ticketRes = await fetch(`http://127.0.0.1:8000/events/${eventId}/tickets`);
+      const ticketRes = await fetch(`${API_BASE_URL}/events/${eventId}/tickets`);
       const ticketData = await ticketRes.json();
       
       // Calculate general stats
@@ -119,18 +120,18 @@ export const Dashboard: React.FC<DashboardProps> = ({
       });
 
       // 4. Fetch Polls & Q&A
-      const pollRes = await fetch(`http://127.0.0.1:8000/events/${eventId}/polls`);
+      const pollRes = await fetch(`${API_BASE_URL}/events/${eventId}/polls`);
       if (pollRes.ok) setPolls(await pollRes.json());
 
-      const qRes = await fetch(`http://127.0.0.1:8000/events/${eventId}/questions`);
+      const qRes = await fetch(`${API_BASE_URL}/events/${eventId}/questions`);
       if (qRes.ok) setQuestions(await qRes.json());
 
       // 5. Fetch Schedule sessions for Organizer schedule widget
-      const sessRes = await fetch(`http://127.0.0.1:8000/events/${eventId}/sessions`);
+      const sessRes = await fetch(`${API_BASE_URL}/events/${eventId}/sessions`);
       if (sessRes.ok) setSessions(await sessRes.json());
 
       // 6. Fetch Budget details to calculate remaining budget
-      const budgetRes = await fetch(`http://127.0.0.1:8000/events/${eventId}/budget`);
+      const budgetRes = await fetch(`${API_BASE_URL}/events/${eventId}/budget`);
       if (budgetRes.ok) {
         const budgetData = await budgetRes.json();
         const totalActualExpense = budgetData.reduce((acc: number, b: any) => acc + b.actual_amount, 0);
@@ -139,7 +140,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
       // 7. ROLE SPECIFIC DATA FETCH
       if (userRole === 'Vendor') {
-        const vendorListRes = await fetch(`http://127.0.0.1:8000/vendors`);
+        const vendorListRes = await fetch(`${API_BASE_URL}/vendors`);
         if (vendorListRes.ok) {
           const vendors = await vendorListRes.json();
           // Seed maps vendor@eventsphere.com to Epicurean Catering (id=1)
@@ -151,7 +152,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
             setVCategory(myProfile.category);
             
             // Fetch bookings
-            const bookingsRes = await fetch(`http://127.0.0.1:8000/events/${eventId}/bookings`);
+            const bookingsRes = await fetch(`${API_BASE_URL}/events/${eventId}/bookings`);
             if (bookingsRes.ok) {
               const bData = await bookingsRes.json();
               setVendorBookings(bData.filter((b: any) => b.vendor_id === myProfile.id));
@@ -187,7 +188,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
   // VOTE POLL
   const handleVote = async (pollId: number, optionIndex: number) => {
     try {
-      const res = await fetch(`http://127.0.0.1:8000/polls/${pollId}/vote`, {
+      const res = await fetch(`${API_BASE_URL}/polls/${pollId}/vote`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ option_index: optionIndex })
@@ -206,7 +207,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
     e.preventDefault();
     if (!newQuestion.trim()) return;
     try {
-      const res = await fetch(`http://127.0.0.1:8000/events/${eventId}/questions`, {
+      const res = await fetch(`${API_BASE_URL}/events/${eventId}/questions`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -227,7 +228,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
   const handleUpvoteQuestion = async (qId: number) => {
     try {
-      await fetch(`http://127.0.0.1:8000/questions/${qId}/upvote`, { method: 'POST' });
+      await fetch(`${API_BASE_URL}/questions/${qId}/upvote`, { method: 'POST' });
       loadDashboard();
     } catch (err) {
       console.error(err);
@@ -236,7 +237,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
   const handleAnswerQuestion = async (qId: number) => {
     try {
-      await fetch(`http://127.0.0.1:8000/questions/${qId}/answer`, { method: 'POST' });
+      await fetch(`${API_BASE_URL}/questions/${qId}/answer`, { method: 'POST' });
       triggerNotification("Question marked as answered.");
       loadDashboard();
     } catch (err) {
@@ -247,7 +248,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
   // EVENT DUPLICATION, PUBLISH, CANCEL, DELETE
   const handleDuplicateEvent = async (eId: number) => {
     try {
-      const res = await fetch(`http://127.0.0.1:8000/events/${eId}/duplicate`, { method: 'POST' });
+      const res = await fetch(`${API_BASE_URL}/events/${eId}/duplicate`, { method: 'POST' });
       if (res.ok) {
         triggerNotification("Event duplicated successfully! Saved as Draft.");
         loadDashboard();
@@ -259,7 +260,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
   const handlePublishEvent = async (eId: number) => {
     try {
-      const res = await fetch(`http://127.0.0.1:8000/events/${eId}/publish`, { method: 'POST' });
+      const res = await fetch(`${API_BASE_URL}/events/${eId}/publish`, { method: 'POST' });
       if (res.ok) {
         triggerNotification("Event published successfully!");
         loadDashboard();
@@ -271,7 +272,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
   const handleCancelEvent = async (eId: number) => {
     try {
-      const res = await fetch(`http://127.0.0.1:8000/events/${eId}/cancel`, { method: 'POST' });
+      const res = await fetch(`${API_BASE_URL}/events/${eId}/cancel`, { method: 'POST' });
       if (res.ok) {
         triggerNotification("Event status updated to Cancelled.");
         loadDashboard();
@@ -284,7 +285,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const handleDeleteEvent = async (eId: number) => {
     if (!window.confirm("Are you sure you want to delete this event? This will remove all guests and ticketing data.")) return;
     try {
-      const res = await fetch(`http://127.0.0.1:8000/events/${eId}`, { method: 'DELETE' });
+      const res = await fetch(`${API_BASE_URL}/events/${eId}`, { method: 'DELETE' });
       if (res.ok) {
         triggerNotification("Event deleted successfully.");
         loadDashboard();
@@ -313,7 +314,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const handleGuestRsvp = async (newStatus: string) => {
     if (!guestProfile) return;
     try {
-      const res = await fetch(`http://127.0.0.1:8000/guests/${guestProfile.id}`, {
+      const res = await fetch(`${API_BASE_URL}/guests/${guestProfile.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus })

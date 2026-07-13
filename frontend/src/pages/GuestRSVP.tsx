@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../config';
 import React, { useState, useEffect } from 'react';
 import { 
   Plus, 
@@ -62,7 +63,7 @@ export const GuestRSVP: React.FC<GuestRSVPProps> = ({ eventId, triggerNotificati
 
   const fetchGuests = async () => {
     try {
-      const res = await fetch(`http://127.0.0.1:8000/events/${eventId}/guests`);
+      const res = await fetch(`${API_BASE_URL}/events/${eventId}/guests`);
       const data = await res.json();
       setGuests(data);
     } catch (err) {
@@ -72,7 +73,7 @@ export const GuestRSVP: React.FC<GuestRSVPProps> = ({ eventId, triggerNotificati
 
   const fetchCampaignLogs = async () => {
     try {
-      const res = await fetch(`http://127.0.0.1:8000/events/${eventId}/notifications/logs`);
+      const res = await fetch(`${API_BASE_URL}/events/${eventId}/notifications/logs`);
       const data = await res.json();
       setCampaignLogs(data.reverse()); // Show newest logs first
     } catch (err) {
@@ -90,7 +91,7 @@ export const GuestRSVP: React.FC<GuestRSVPProps> = ({ eventId, triggerNotificati
     if (!newGuestName || !newGuestEmail) return;
 
     try {
-      const res = await fetch(`http://127.0.0.1:8000/events/${eventId}/guests`, {
+      const res = await fetch(`${API_BASE_URL}/events/${eventId}/guests`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -118,7 +119,7 @@ export const GuestRSVP: React.FC<GuestRSVPProps> = ({ eventId, triggerNotificati
   const handleToggleStatus = async (guestId: number, currentStatus: string) => {
     const nextStatus = currentStatus === 'Pending' ? 'Attending' : currentStatus === 'Attending' ? 'Declined' : 'Pending';
     try {
-      const res = await fetch(`http://127.0.0.1:8000/guests/${guestId}`, {
+      const res = await fetch(`${API_BASE_URL}/guests/${guestId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: nextStatus })
@@ -135,7 +136,7 @@ export const GuestRSVP: React.FC<GuestRSVPProps> = ({ eventId, triggerNotificati
   const handleDeleteGuest = async (guestId: number) => {
     if (!window.confirm("Remove this guest and cancel their ticket registration?")) return;
     try {
-      const res = await fetch(`http://127.0.0.1:8000/guests/${guestId}`, {
+      const res = await fetch(`${API_BASE_URL}/guests/${guestId}`, {
         method: 'DELETE'
       });
       if (res.ok) {
@@ -150,7 +151,7 @@ export const GuestRSVP: React.FC<GuestRSVPProps> = ({ eventId, triggerNotificati
   const handleLaunchCampaign = async () => {
     setLaunching(true);
     try {
-      const res = await fetch(`http://127.0.0.1:8000/events/${eventId}/notifications/campaign`, {
+      const res = await fetch(`${API_BASE_URL}/events/${eventId}/notifications/campaign`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

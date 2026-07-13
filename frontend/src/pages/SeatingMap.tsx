@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../config';
 import React, { useState, useEffect } from 'react';
 import { 
   Plus, 
@@ -47,11 +48,11 @@ export const SeatingMap: React.FC<SeatingMapProps> = ({ eventId, triggerNotifica
 
   const fetchData = async () => {
     try {
-      const seatRes = await fetch(`http://127.0.0.1:8000/events/${eventId}/seating`);
+      const seatRes = await fetch(`${API_BASE_URL}/events/${eventId}/seating`);
       const seatData = await seatRes.json();
       setTables(seatData);
 
-      const guestRes = await fetch(`http://127.0.0.1:8000/events/${eventId}/guests`);
+      const guestRes = await fetch(`${API_BASE_URL}/events/${eventId}/guests`);
       const guestData = await guestRes.json();
       setGuests(guestData);
     } catch (err) {
@@ -67,7 +68,7 @@ export const SeatingMap: React.FC<SeatingMapProps> = ({ eventId, triggerNotifica
     e.preventDefault();
     if (!tableName) return;
     try {
-      const res = await fetch(`http://127.0.0.1:8000/events/${eventId}/seating`, {
+      const res = await fetch(`${API_BASE_URL}/events/${eventId}/seating`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -92,7 +93,7 @@ export const SeatingMap: React.FC<SeatingMapProps> = ({ eventId, triggerNotifica
   const handleRemoveTable = async (tableId: number) => {
     if (!window.confirm("Remove this table and clear all seat assignments?")) return;
     try {
-      const res = await fetch(`http://127.0.0.1:8000/seating/${tableId}`, {
+      const res = await fetch(`${API_BASE_URL}/seating/${tableId}`, {
         method: 'DELETE'
       });
       if (res.ok) {
@@ -113,7 +114,7 @@ export const SeatingMap: React.FC<SeatingMapProps> = ({ eventId, triggerNotifica
     const newY = Math.max(10, Math.min(380, table.y_coordinate + dy));
 
     try {
-      const res = await fetch(`http://127.0.0.1:8000/seating/${tableId}`, {
+      const res = await fetch(`${API_BASE_URL}/seating/${tableId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -143,7 +144,7 @@ export const SeatingMap: React.FC<SeatingMapProps> = ({ eventId, triggerNotifica
     }
     const updatedGuestIds = [...activeTable.guest_ids, guestId];
     try {
-      const res = await fetch(`http://127.0.0.1:8000/seating/${activeTable.id}`, {
+      const res = await fetch(`${API_BASE_URL}/seating/${activeTable.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -168,7 +169,7 @@ export const SeatingMap: React.FC<SeatingMapProps> = ({ eventId, triggerNotifica
     if (!activeTable) return;
     const updatedGuestIds = activeTable.guest_ids.filter(id => id !== guestId);
     try {
-      const res = await fetch(`http://127.0.0.1:8000/seating/${activeTable.id}`, {
+      const res = await fetch(`${API_BASE_URL}/seating/${activeTable.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

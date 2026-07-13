@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../config';
 import React, { useState, useEffect } from 'react';
 import { 
   Calendar as CalendarIcon, 
@@ -40,7 +41,7 @@ export const CalendarPage: React.FC<CalendarPageProps> = ({ eventId, triggerNoti
       const itemsList: CalendarItem[] = [];
 
       // 1. Fetch Event date itself
-      const eventRes = await fetch(`http://127.0.0.1:8000/events/${eventId}`);
+      const eventRes = await fetch(`${API_BASE_URL}/events/${eventId}`);
       let eventDateStr = "2026-10-15";
       if (eventRes.ok) {
         const eventData = await eventRes.json();
@@ -56,7 +57,7 @@ export const CalendarPage: React.FC<CalendarPageProps> = ({ eventId, triggerNoti
       }
 
       // 2. Fetch Schedule Sessions (sessions, meetings, deadlines)
-      const sessionRes = await fetch(`http://127.0.0.1:8000/events/${eventId}/sessions`);
+      const sessionRes = await fetch(`${API_BASE_URL}/events/${eventId}/sessions`);
       if (sessionRes.ok) {
         const sessionsData = await sessionRes.json();
         sessionsData.forEach((s: any) => {
@@ -78,7 +79,7 @@ export const CalendarPage: React.FC<CalendarPageProps> = ({ eventId, triggerNoti
       }
 
       // 3. Fetch Vendor Bookings
-      const bookingRes = await fetch(`http://127.0.0.1:8000/events/${eventId}/bookings`);
+      const bookingRes = await fetch(`${API_BASE_URL}/events/${eventId}/bookings`);
       if (bookingRes.ok) {
         const bookingData = await bookingRes.json();
         bookingData.forEach((b: any) => {

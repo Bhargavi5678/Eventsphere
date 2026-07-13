@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../config';
 import React, { useState, useEffect } from 'react';
 import { 
   Globe, 
@@ -61,11 +62,11 @@ export const EventWebsiteGen: React.FC<EventWebsiteGenProps> = ({ eventId, activ
   // Load preview info
   const loadPreviewData = async () => {
     try {
-      const sRes = await fetch(`http://127.0.0.1:8000/events/${eventId}/schedule`);
+      const sRes = await fetch(`${API_BASE_URL}/events/${eventId}/schedule`);
       const sData = await sRes.json();
       setSchedule(sData);
 
-      const spRes = await fetch(`http://127.0.0.1:8000/events/${eventId}/sponsors`);
+      const spRes = await fetch(`${API_BASE_URL}/events/${eventId}/sponsors`);
       const spData = await spRes.json();
       setSponsors(spData);
     } catch (err) {
@@ -81,7 +82,7 @@ export const EventWebsiteGen: React.FC<EventWebsiteGenProps> = ({ eventId, activ
     e.preventDefault();
     setSaving(true);
     try {
-      const res = await fetch(`http://127.0.0.1:8000/events/${eventId}`, {
+      const res = await fetch(`${API_BASE_URL}/events/${eventId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
