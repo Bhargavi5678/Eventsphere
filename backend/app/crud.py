@@ -36,6 +36,9 @@ def create_event(db: Session, event: schemas.EventCreate):
         location=event.location,
         theme=event.theme,
         website_slug=event.website_slug or str(uuid.uuid4())[:8],
+        status=event.status or "Published",
+        guest_limit=event.guest_limit or 100,
+        organizer_id=event.organizer_id,
         website_config=event.website_config or {
             "banner_title": event.title,
             "banner_subtitle": event.description or "Welcome to our event website!",
@@ -49,6 +52,69 @@ def create_event(db: Session, event: schemas.EventCreate):
     db.commit()
     db.refresh(db_event)
     return db_event
+
+def duplicate_event(db: Session, event_id: int):
+    orig = get_event(db, event_id)
+    if not orig:
+        return None
+    
+    new_event = models.Event(
+        title=f"Copy of {orig.title}",
+        description=orig.description,
+        date=orig.date,
+        location=orig.location,
+        theme=orig.theme,
+        website_slug=f"copy-{str(uuid.uuid4())[:8]}",
+        website_config=orig.website_config,
+        status="Draft",
+        guest_limit=orig.guest_limit,
+        organizer_id=orig.organizer_id
+    )
+    db.add(new_event)
+    db.commit()
+    db.refresh(new_event)
+    
+    # Copy sessions
+    for session in orig.sessions:
+        new_session = models.ScheduleSession(
+            event_id=new_event.id,
+            title=session.title,
+            speaker=session.speaker,
+            start_time=session.start_time,
+            end_time=session.end_time,
+            location=session.location,
+            session_type=session.session_type
+        )
+        db.add(new_session)
+        
+    # Copy seating
+    for seat in orig.seats:
+        new_seat = models.Seat(
+            event_id=new_event.id,
+            table_name=seat.table_name,
+            table_shape=seat.table_shape,
+            x_coordinate=seat.x_coordinate,
+            y_coordinate=seat.y_coordinate,
+            capacity=seat.capacity,
+            guest_ids=[]
+        )
+        db.add(new_seat)
+        
+    # Copy sponsors
+    for sponsor in orig.sponsors:
+        new_sponsor = models.Sponsor(
+            event_id=new_event.id,
+            name=sponsor.name,
+            level=sponsor.level,
+            amount_funded=sponsor.amount_funded,
+            logo_url=sponsor.logo_url,
+            website=sponsor.website
+        )
+        db.add(new_sponsor)
+        
+    db.commit()
+    db.refresh(new_event)
+    return new_event
 
 def update_event(db: Session, event_id: int, event_update: schemas.EventUpdate):
     db_event = get_event(db, event_id)
@@ -70,6 +136,30 @@ def delete_event(db: Session, event_id: int):
 
 
 # --- GUESTS ---
+def check_rsvp_status_and_limit(db: Session, event_id: int, guest_id: Optional[int], target_status: str) -> str:
+    """
+    Checks if a status change to 'Attending' exceeds the event's guest limit.
+    If so, returns 'Waitlist'. Otherwise returns the target_status.
+    """
+    if not target_status or target_status.lower() != 'attending':
+        return target_status
+        
+    event = db.query(models.Event).filter(models.Event.id == event_id).first()
+    if not event:
+        return target_status
+        
+    query = db.query(models.Guest).filter(
+        models.Guest.event_id == event_id,
+        models.Guest.status == "Attending"
+    )
+    if guest_id:
+        query = query.filter(models.Guest.id != guest_id)
+        
+    attending_count = query.count()
+    if attending_count >= event.guest_limit:
+        return "Waitlist"
+    return "Attending"
+
 def get_guests(db: Session, event_id: int):
     return db.query(models.Guest).filter(models.Guest.event_id == event_id).all()
 
@@ -77,7 +167,11 @@ def get_guest(db: Session, guest_id: int):
     return db.query(models.Guest).filter(models.Guest.id == guest_id).first()
 
 def create_guest(db: Session, guest: schemas.GuestCreate, event_id: int):
+    status = guest.status or "Pending"
+    status = check_rsvp_status_and_limit(db, event_id, None, status)
+    
     db_guest = models.Guest(**guest.model_dump(), event_id=event_id)
+    db_guest.status = status
     db.add(db_guest)
     db.commit()
     db.refresh(db_guest)
@@ -87,7 +181,14 @@ def update_guest(db: Session, guest_id: int, guest_update: schemas.GuestUpdate):
     db_guest = get_guest(db, guest_id)
     if not db_guest:
         return None
-    for key, value in guest_update.model_dump(exclude_unset=True).items():
+        
+    update_data = guest_update.model_dump(exclude_unset=True)
+    if "status" in update_data:
+        status = update_data["status"]
+        status = check_rsvp_status_and_limit(db, db_guest.event_id, guest_id, status)
+        update_data["status"] = status
+        
+    for key, value in update_data.items():
         setattr(db_guest, key, value)
     db.commit()
     db.refresh(db_guest)

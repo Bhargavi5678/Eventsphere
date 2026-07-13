@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, Field
 from typing import List, Optional, Dict, Any
 from datetime import datetime
 
@@ -6,6 +6,34 @@ from datetime import datetime
 class ORMModel(BaseModel):
     class Config:
         from_attributes = True
+
+# --- USER SCHEMAS ---
+class UserBase(BaseModel):
+    email: str
+    name: str
+    role: str = "Guest" # Admin, Event Organizer, Vendor, Guest
+    is_verified: bool = False
+
+class UserRegister(BaseModel):
+    email: str
+    name: str
+    password: str
+    role: str = "Guest"
+
+class UserLogin(BaseModel):
+    email: str
+    password: str
+
+class ForgotPasswordRequest(BaseModel):
+    email: str
+
+class VerifyEmailRequest(BaseModel):
+    email: str
+    token: str
+
+class UserResponse(UserBase, ORMModel):
+    id: int
+    created_at: datetime
 
 # --- EVENT SCHEMAS ---
 class EventBase(BaseModel):
@@ -16,6 +44,9 @@ class EventBase(BaseModel):
     theme: Optional[str] = "modern-dark"
     website_slug: Optional[str] = None
     website_config: Optional[Dict[str, Any]] = None
+    status: Optional[str] = "Published" # Draft, Published, Cancelled
+    guest_limit: Optional[int] = 100
+    organizer_id: Optional[int] = None
 
 class EventCreate(EventBase):
     pass
@@ -28,6 +59,9 @@ class EventUpdate(BaseModel):
     theme: Optional[str] = None
     website_slug: Optional[str] = None
     website_config: Optional[Dict[str, Any]] = None
+    status: Optional[str] = None
+    guest_limit: Optional[int] = None
+    organizer_id: Optional[int] = None
 
 class EventResponse(EventBase, ORMModel):
     id: int
@@ -43,6 +77,7 @@ class GuestBase(BaseModel):
     table_id: Optional[int] = None
     seat_number: Optional[int] = None
     badge_printed: Optional[bool] = False
+    user_id: Optional[int] = None
 
 class GuestCreate(GuestBase):
     pass
@@ -56,6 +91,7 @@ class GuestUpdate(BaseModel):
     table_id: Optional[int] = None
     seat_number: Optional[int] = None
     badge_printed: Optional[bool] = None
+    user_id: Optional[int] = None
 
 class GuestResponse(GuestBase, ORMModel):
     id: int
@@ -104,6 +140,9 @@ class VendorBase(BaseModel):
     contact: str
     image_url: Optional[str] = None
     description: Optional[str] = None
+    availability: Optional[bool] = True
+    reviews: Optional[List[Dict[str, Any]]] = None
+    user_id: Optional[int] = None
 
 class VendorCreate(VendorBase):
     pass
@@ -135,6 +174,7 @@ class ScheduleSessionBase(BaseModel):
     start_time: str
     end_time: str
     location: Optional[str] = None
+    session_type: Optional[str] = "session" # session, meeting, deadline
 
 class ScheduleSessionCreate(ScheduleSessionBase):
     pass
@@ -263,3 +303,4 @@ class NotificationCampaignRequest(BaseModel):
     channel: str # "Email" or "SMS" or "Push"
     template_type: str # "RSVP Reminder", "Ticket Details", "Venue Update", "Post-Event Survey"
     recipient_role: str = "All" # "Attendee", "Speaker", "VIP", "All"
+

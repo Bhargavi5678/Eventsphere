@@ -3,6 +3,25 @@ from sqlalchemy.orm import relationship
 from datetime import datetime
 from app.database import Base
 
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True, index=True)
+    email = Column(String, unique=True, index=True, nullable=False)
+    name = Column(String, nullable=False)
+    hashed_password = Column(String, nullable=False)
+    role = Column(String, default="Guest")  # Admin, Event Organizer, Vendor, Guest
+    is_verified = Column(Boolean, default=False)
+    verification_token = Column(String, nullable=True)
+    reset_token = Column(String, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    # Relationships
+    events = relationship("Event", back_populates="organizer")
+    guests = relationship("Guest", back_populates="user")
+    vendors = relationship("Vendor", back_populates="user")
+
+
 class Event(Base):
     __tablename__ = "events"
 
@@ -14,9 +33,13 @@ class Event(Base):
     theme = Column(String, default="modern-dark")
     website_slug = Column(String, unique=True, index=True, nullable=True)
     website_config = Column(JSON, default=dict)  # Stores styling & structure config
+    status = Column(String, default="Published")  # Draft, Published, Cancelled
+    guest_limit = Column(Integer, default=100)
+    organizer_id = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     # Relationships
+    organizer = relationship("User", back_populates="events")
     guests = relationship("Guest", back_populates="event", cascade="all, delete-orphan")
     tickets = relationship("Ticket", back_populates="event", cascade="all, delete-orphan")
     budget_items = relationship("BudgetItem", back_populates="event", cascade="all, delete-orphan")
@@ -35,10 +58,11 @@ class Guest(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     event_id = Column(Integer, ForeignKey("events.id", ondelete="CASCADE"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
     name = Column(String, nullable=False)
     email = Column(String, nullable=False)
     phone = Column(String, nullable=True)
-    status = Column(String, default="Pending")  # Attending, Declined, Pending
+    status = Column(String, default="Pending")  # Attending, Declined, Maybe, Waitlist, Pending
     role = Column(String, default="Attendee")    # Attendee, Speaker, VIP, Staff
     table_id = Column(Integer, nullable=True)
     seat_number = Column(Integer, nullable=True)
@@ -46,6 +70,7 @@ class Guest(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
     event = relationship("Event", back_populates="guests")
+    user = relationship("User", back_populates="guests")
     tickets = relationship("Ticket", back_populates="guest", cascade="all, delete-orphan")
 
 
@@ -83,15 +108,19 @@ class Vendor(Base):
     __tablename__ = "vendors"
 
     id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
     name = Column(String, nullable=False)
-    category = Column(String, nullable=False)     # Catering, Venue, AV, Decor, Photography, Entertainment
+    category = Column(String, nullable=False)     # Catering, Venue, AV, Decor, Photography, DJ, Makeup, Security, Transportation
     rating = Column(Float, default=5.0)
     starting_price = Column(Float, default=0.0)
     contact = Column(String, nullable=False)
     image_url = Column(String, nullable=True)
     description = Column(Text, nullable=True)
+    availability = Column(Boolean, default=True)
+    reviews = Column(JSON, default=list)  # [{"author": "Marcus", "rating": 5, "comment": "Excellent ballroom!", "date": "2026-07-10"}]
 
     bookings = relationship("VendorBooking", back_populates="vendor", cascade="all, delete-orphan")
+    user = relationship("User", back_populates="vendors")
 
 
 class VendorBooking(Base):
@@ -118,6 +147,7 @@ class ScheduleSession(Base):
     start_time = Column(String, nullable=False)   # ISO or HH:MM
     end_time = Column(String, nullable=False)
     location = Column(String, nullable=True)
+    session_type = Column(String, default="session") # session, meeting, deadline
 
     event = relationship("Event", back_populates="sessions")
 
@@ -203,3 +233,4 @@ class StaffMember(Base):
     contact = Column(String, nullable=False)
 
     event = relationship("Event", back_populates="staff_members")
+

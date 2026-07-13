@@ -42,6 +42,27 @@ def delete_event_by_id(event_id: int, db: Session = Depends(database.get_db)):
         raise HTTPException(status_code=404, detail="Event not found")
     return {"status": "Event deleted successfully"}
 
+@router.post("/{event_id}/duplicate", response_model=schemas.EventResponse)
+def duplicate_existing_event(event_id: int, db: Session = Depends(database.get_db)):
+    db_event = crud.duplicate_event(db, event_id=event_id)
+    if not db_event:
+        raise HTTPException(status_code=404, detail="Event not found")
+    return db_event
+
+@router.post("/{event_id}/publish", response_model=schemas.EventResponse)
+def publish_event(event_id: int, db: Session = Depends(database.get_db)):
+    db_event = crud.update_event(db=db, event_id=event_id, event_update=schemas.EventUpdate(status="Published"))
+    if not db_event:
+        raise HTTPException(status_code=404, detail="Event not found")
+    return db_event
+
+@router.post("/{event_id}/cancel", response_model=schemas.EventResponse)
+def cancel_event(event_id: int, db: Session = Depends(database.get_db)):
+    db_event = crud.update_event(db=db, event_id=event_id, event_update=schemas.EventUpdate(status="Cancelled"))
+    if not db_event:
+        raise HTTPException(status_code=404, detail="Event not found")
+    return db_event
+
 # --- CALENDAR SYNC (ICS Export) ---
 @router.get("/{event_id}/ics")
 def get_event_ics_file(event_id: int, db: Session = Depends(database.get_db)):
