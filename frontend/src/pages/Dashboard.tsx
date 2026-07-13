@@ -23,7 +23,8 @@ import {
   Download,
   Clock,
   MapPin,
-  Trash2
+  Trash2,
+  X
 } from 'lucide-react';
 import { 
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -36,6 +37,7 @@ interface DashboardProps {
   triggerNotification: (message: string) => void;
   userRole?: string;
   userEmail?: string;
+  userId?: number;
   onNavigate?: (tab: string) => void;
 }
 
@@ -44,6 +46,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
   triggerNotification,
   userRole = 'Admin',
   userEmail = 'admin@eventsphere.com',
+  userId,
   onNavigate
 }) => {
   const { t } = useLanguage();
@@ -61,6 +64,16 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const [questions, setQuestions] = useState<any[]>([]);
   const [newQuestion, setNewQuestion] = useState('');
   const [newQuestionUser, setNewQuestionUser] = useState('');
+
+  // Create Event states
+  const [showCreateEventModal, setShowCreateEventModal] = useState(false);
+  const [newEventTitle, setNewEventTitle] = useState('');
+  const [newEventDate, setNewEventDate] = useState('');
+  const [newEventLocation, setNewEventLocation] = useState('');
+  const [newEventGuestLimit, setNewEventGuestLimit] = useState(100);
+  const [newEventDescription, setNewEventDescription] = useState('');
+  const [newEventTheme, setNewEventTheme] = useState('glassmorphism-dark');
+  const [newEventStatus, setNewEventStatus] = useState('Published');
 
   // ORGANIZER SPECIFIC STATE
   const [sessions, setSessions] = useState<any[]>([]);
@@ -292,6 +305,44 @@ export const Dashboard: React.FC<DashboardProps> = ({
       }
     } catch (err) {
       console.error(err);
+    }
+  };
+
+  const handleCreateEventSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const res = await fetch(`${API_BASE_URL}/events/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: newEventTitle,
+          description: newEventDescription,
+          date: newEventDate,
+          location: newEventLocation,
+          theme: newEventTheme,
+          status: newEventStatus,
+          guest_limit: newEventGuestLimit,
+          organizer_id: userId
+        })
+      });
+      if (res.ok) {
+        triggerNotification("Event created successfully!");
+        setShowCreateEventModal(false);
+        setNewEventTitle('');
+        setNewEventDate('');
+        setNewEventLocation('');
+        setNewEventGuestLimit(100);
+        setNewEventDescription('');
+        setNewEventTheme('glassmorphism-dark');
+        setNewEventStatus('Published');
+        loadDashboard();
+      } else {
+        const err = await res.json();
+        alert(err.detail || "Failed to create event");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error contacting server");
     }
   };
 
@@ -643,7 +694,15 @@ export const Dashboard: React.FC<DashboardProps> = ({
               <Calendar className="w-4 h-4 text-indigo-400" />
               Upcoming Events Management
             </h3>
-            <span className="text-[9px] text-gray-400 font-bold">Total: {events.length}</span>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setShowCreateEventModal(true)}
+                className="px-2.5 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-[10px] font-bold transition-all cursor-pointer flex items-center gap-1"
+              >
+                <Plus className="w-3.5 h-3.5" /> Book New Event
+              </button>
+              <span className="text-[9px] text-gray-400 font-bold">Total: {events.length}</span>
+            </div>
           </div>
 
           <div className="space-y-3.5 max-h-[360px] overflow-y-auto pr-1">
@@ -1079,16 +1138,141 @@ export const Dashboard: React.FC<DashboardProps> = ({
   );
 
   // Switch layouts based on user role
-  switch (userRole) {
-    case 'Admin':
-      return renderAdminDashboard();
-    case 'Event Organizer':
-      return renderOrganizerDashboard();
-    case 'Vendor':
-      return renderVendorDashboard();
-    case 'Guest':
-      return renderGuestDashboard();
-    default:
-      return renderAdminDashboard();
-  }
+  const getDashboardContent = () => {
+    switch (userRole) {
+      case 'Admin':
+        return renderAdminDashboard();
+      case 'Event Organizer':
+        return renderOrganizerDashboard();
+      case 'Vendor':
+        return renderVendorDashboard();
+      case 'Guest':
+        return renderGuestDashboard();
+      default:
+        return renderAdminDashboard();
+    }
+  };
+
+  return (
+    <>
+      {getDashboardContent()}
+
+      {/* --- CREATE NEW EVENT MODAL --- */}
+      {showCreateEventModal && (
+        <div className="fixed inset-0 bg-[#04060a]/80 backdrop-blur-sm flex items-center justify-center z-50 animate-in fade-in duration-300">
+          <div className="glass-panel max-w-lg w-full border border-white/10 rounded-3xl p-6 md:p-8 space-y-6 animate-in zoom-in-95 duration-300 shadow-2xl bg-[#090d16] max-h-[90vh] overflow-y-auto">
+            
+            {/* Modal Header */}
+            <div className="flex items-center justify-between border-b border-white/5 pb-4">
+              <div>
+                <h3 className="font-black text-white text-lg">Book / Create New Event</h3>
+                <p className="text-xs text-gray-500 mt-0.5">Initialize a new event in the database</p>
+              </div>
+              <button 
+                onClick={() => setShowCreateEventModal(false)}
+                className="w-8 h-8 rounded-xl bg-white/5 hover:bg-white/10 flex items-center justify-center text-gray-400 hover:text-white transition-colors cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Event Form */}
+            <form onSubmit={handleCreateEventSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <label className="text-[10px] font-extrabold text-gray-500 uppercase tracking-widest block">Event Title</label>
+                <input
+                  type="text"
+                  value={newEventTitle}
+                  onChange={(e) => setNewEventTitle(e.target.value)}
+                  placeholder="e.g. Annual Tech Symposium"
+                  required
+                  className="w-full glass-input rounded-xl px-4 py-2.5 text-xs text-white"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-extrabold text-gray-500 uppercase tracking-widest block">Date</label>
+                  <input
+                    type="date"
+                    value={newEventDate}
+                    onChange={(e) => setNewEventDate(e.target.value)}
+                    required
+                    className="w-full glass-input rounded-xl px-4 py-2.5 text-xs text-white"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-extrabold text-gray-500 uppercase tracking-widest block">Guest Limit</label>
+                  <input
+                    type="number"
+                    value={newEventGuestLimit}
+                    onChange={(e) => setNewEventGuestLimit(parseInt(e.target.value) || 100)}
+                    min="1"
+                    required
+                    className="w-full glass-input rounded-xl px-4 py-2.5 text-xs text-white"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-[10px] font-extrabold text-gray-500 uppercase tracking-widest block">Location</label>
+                <input
+                  type="text"
+                  value={newEventLocation}
+                  onChange={(e) => setNewEventLocation(e.target.value)}
+                  placeholder="e.g. San Francisco, CA"
+                  required
+                  className="w-full glass-input rounded-xl px-4 py-2.5 text-xs text-white"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-[10px] font-extrabold text-gray-500 uppercase tracking-widest block">Description</label>
+                <textarea
+                  value={newEventDescription}
+                  onChange={(e) => setNewEventDescription(e.target.value)}
+                  placeholder="Brief summary of the event..."
+                  rows={3}
+                  className="w-full glass-input rounded-xl px-4 py-2.5 text-xs text-white"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-extrabold text-gray-500 uppercase tracking-widest block">Status</label>
+                  <select
+                    value={newEventStatus}
+                    onChange={(e) => setNewEventStatus(e.target.value)}
+                    className="w-full glass-input rounded-xl px-4 py-2.5 text-xs text-white bg-[#090d16] border border-white/10"
+                  >
+                    <option value="Published">Published</option>
+                    <option value="Draft">Draft</option>
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-extrabold text-gray-500 uppercase tracking-widest block">Theme Style</label>
+                  <select
+                    value={newEventTheme}
+                    onChange={(e) => setNewEventTheme(e.target.value)}
+                    className="w-full glass-input rounded-xl px-4 py-2.5 text-xs text-white bg-[#090d16] border border-white/10"
+                  >
+                    <option value="glassmorphism-dark">Glassmorphism Dark</option>
+                    <option value="minimal-light">Minimal Light</option>
+                    <option value="sunset-gradient">Sunset Gradient</option>
+                  </select>
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                className="w-full py-3 mt-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs tracking-wide transition-all cursor-pointer glow-primary border border-indigo-500/50"
+              >
+                Create Event
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+    </>
+  );
 };

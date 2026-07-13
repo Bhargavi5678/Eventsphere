@@ -12,6 +12,7 @@ import {
   Image as ImageIcon,
   Calendar,
   Store,
+  Ticket,
   LogOut
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
@@ -20,6 +21,8 @@ interface SidebarProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
   userRole?: string;
+  userName?: string;
+  userEmail?: string;
   onLogout: () => void;
 }
 
@@ -27,6 +30,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
   activeTab, 
   setActiveTab, 
   userRole = 'Admin',
+  userName,
+  userEmail,
   onLogout 
 }) => {
   const { t } = useLanguage();
@@ -42,6 +47,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           { id: 'budget', label: t('budget'), icon: BadgeDollarSign },
           { id: 'aiPlanner', label: t('aiPlanner'), icon: BrainCircuit },
           { id: 'websiteGen', label: t('websiteGen'), icon: Globe },
+          { id: 'ticketing', label: t('ticketing'), icon: Ticket },
           { id: 'engagement', label: t('engagement'), icon: MessageSquareDiff },
           { id: 'certificates', label: t('certificates'), icon: Award },
           { id: 'sponsorsStaff', label: t('sponsorsStaff'), icon: ShieldCheck },
@@ -57,6 +63,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           { id: 'budget', label: t('budget'), icon: BadgeDollarSign },
           { id: 'aiPlanner', label: t('aiPlanner'), icon: BrainCircuit },
           { id: 'websiteGen', label: t('websiteGen'), icon: Globe },
+          { id: 'ticketing', label: t('ticketing'), icon: Ticket },
           { id: 'certificates', label: t('certificates'), icon: Award },
           { id: 'marketplace', label: 'Marketplace', icon: Store },
           { id: 'calendar', label: 'Calendar', icon: Calendar }
@@ -126,11 +133,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
       {/* Footer Profile */}
       <div className="p-4 border-t border-white/5 bg-slate-950/20 flex items-center gap-3">
         <div className="w-9 h-9 rounded-full bg-slate-800 border border-indigo-500/30 flex items-center justify-center text-xs font-bold text-indigo-300 uppercase">
-          {userRole.substring(0, 2)}
+          {(userName || userRole || 'Guest').substring(0, 2)}
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-xs font-semibold text-white truncate">{userRole}</p>
-          <p className="text-[9px] text-gray-500 truncate">eventsphere.com</p>
+          <p className="text-xs font-semibold text-white truncate">{userName || userRole || 'Guest'}</p>
+          <p className="text-[9px] text-gray-500 truncate">{userEmail || 'eventsphere.com'}</p>
         </div>
         <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse glow-primary"></span>
       </div>

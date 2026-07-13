@@ -16,6 +16,7 @@ import { Ticketing } from './pages/Ticketing';
 import { LandingPage } from './pages/LandingPage';
 import { VendorMarket } from './pages/VendorMarket';
 import { CalendarPage } from './pages/CalendarPage';
+import { PollsQA } from './pages/PollsQA';
 import { 
   X, 
   Mail, 
@@ -58,6 +59,16 @@ export const App: React.FC = () => {
   const [resetEmail, setResetEmail] = useState('');
   const [resetToken, setResetToken] = useState('');
   const [resetNewPassword, setResetNewPassword] = useState('');
+
+  const resetAuthInputs = () => {
+    setEmailInput('');
+    setPasswordInput('');
+    setNameInput('');
+    setVerifyTokenInput('');
+    setResetEmail('');
+    setResetToken('');
+    setResetNewPassword('');
+  };
 
   // Notification states
   const [notifications, setNotifications] = useState<string[]>([]);
@@ -293,6 +304,7 @@ export const App: React.FC = () => {
   };
 
   const handleOpenAuth = (role?: string) => {
+    resetAuthInputs();
     if (role) {
       setAuthRole(role);
       setAuthMode('register');
@@ -322,6 +334,7 @@ export const App: React.FC = () => {
             triggerNotification={triggerNotification} 
             userRole={role}
             userEmail={user?.email}
+            userId={user?.id}
             onNavigate={setActiveTab}
           />
         );
@@ -336,7 +349,7 @@ export const App: React.FC = () => {
       case 'websiteGen':
         return <EventWebsiteGen eventId={1} activeEvent={activeEvent} refreshEvent={fetchActiveEvent} triggerNotification={triggerNotification} />;
       case 'engagement':
-        return <Dashboard eventId={1} triggerNotification={triggerNotification} userRole={role} userEmail={user?.email} />;
+        return <PollsQA eventId={1} triggerNotification={triggerNotification} userRole={role} />;
       case 'certificates':
         return <Certificates eventId={1} triggerNotification={triggerNotification} />;
       case 'sponsorsStaff':
@@ -366,6 +379,8 @@ export const App: React.FC = () => {
           activeTab={activeTab} 
           setActiveTab={setActiveTab} 
           userRole={user?.role} 
+          userName={user?.name}
+          userEmail={user?.email}
           onLogout={handleLogout}
         />
       )}
@@ -409,7 +424,10 @@ export const App: React.FC = () => {
                 </p>
               </div>
               <button 
-                onClick={() => setShowAuthModal(false)}
+                onClick={() => {
+                  setShowAuthModal(false);
+                  resetAuthInputs();
+                }}
                 className="w-8 h-8 rounded-xl bg-white/5 hover:bg-white/10 flex items-center justify-center text-gray-400 hover:text-white transition-colors cursor-pointer"
               >
                 <X className="w-4 h-4" />
@@ -696,7 +714,10 @@ export const App: React.FC = () => {
                       Don't have an account?{' '}
                       <button 
                         type="button" 
-                        onClick={() => setAuthMode('register')} 
+                        onClick={() => {
+                          resetAuthInputs();
+                          setAuthMode('register');
+                        }} 
                         className="text-indigo-400 hover:text-indigo-300 transition-colors font-bold cursor-pointer"
                       >
                         Sign Up
@@ -707,7 +728,10 @@ export const App: React.FC = () => {
                       Already have an account?{' '}
                       <button 
                         type="button" 
-                        onClick={() => setAuthMode('login')} 
+                        onClick={() => {
+                          resetAuthInputs();
+                          setAuthMode('login');
+                        }} 
                         className="text-indigo-400 hover:text-indigo-300 transition-colors font-bold cursor-pointer"
                       >
                         Sign In
